@@ -1,16 +1,21 @@
 {
   "name": "json-touch-patch",
   "description": "shallow and immutable JSON patch",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "author": "Nao Yonamine <mohayonao@gmail.com>",
   "bugs": {
     "url": "https://github.com/mohayonao/json-touch-patch/issues"
+  },
+  "dependencies": {
+    "lodash.clone": "^4.5.0"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-power-assert": "^1.0.0",
     "eslint": "^3.7.1",
+    "fast-json-patch": "^1.1.1",
+    "json-patch-test-suite": "^1.1.0",
     "mocha": "^3.1.2",
     "npm-run-all": "^3.1.0",
     "nyc": "^8.3.1",
