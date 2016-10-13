@@ -148,7 +148,43 @@ describe("touch", () => {
     assert(doc.vector === actual.vector);
   });
 
-  it("not move", () => {
+  it("not add (invalid path)", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "add", path: "/matrix/1/4", value: 9 },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc === actual);
+  });
+
+  it("not replace (same value)", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "replace", path: "/matrix/1/1", value: 4 },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc === actual);
+  });
+
+  it("not move (same path)", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
       { op: "move", path: "/matrix/1", from: "/matrix/1" },
@@ -166,7 +202,7 @@ describe("touch", () => {
     assert(doc === actual);
   });
 
-  it("not copy", () => {
+  it("not copy (same path)", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
       { op: "copy", path: "/matrix/1", from: "/matrix/1" },
@@ -182,5 +218,28 @@ describe("touch", () => {
 
     assert.deepEqual(actual, expected);
     assert(doc === actual);
+  });
+
+  it("partially patch", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "add"    , path: "/matrix/2/4", value: 0 },
+      { op: "replace", path: "/matrix/1/1", value: 9 },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 9, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc !== actual);
+    assert(doc.matrix[0] === actual.matrix[0]);
+    assert(doc.matrix[1] !== actual.matrix[1]);
+    assert(doc.matrix[2] === actual.matrix[2]);
+    assert(doc.vector === actual.vector);
   });
 });
