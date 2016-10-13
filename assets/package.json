@@ -1,0 +1,23 @@
+{
+  "name": "@json-touch-patch/benchmark",
+  "description": "benchmark suite",
+  "version": "0.0.0",
+  "dependencies": {
+    "benchmark": "^2.1.1",
+    "fast-json-patch": "^1.1.1",
+    "jiff": "^0.7.3",
+    "json-patch": "^0.5.0",
+    "json-patch-test-suite": "^1.1.0",
+    "json8-patch": "^0.4.0",
+    "jsonpatch": "^3.0.1",
+    "rfc6902": "^1.2.2",
+    "right-pad": "^1.0.1"
+  },
+  "main": "benchmark/index.js",
+  "private": true,
+  "scripts": {
+    "build": "cd .. && npm run build",
+    "lint": "cd .. && npm run lint",
+    "test": "cd .. && npm run test"
+  }
+}
