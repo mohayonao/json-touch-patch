@@ -1,6 +1,6 @@
 {
   "name": "json-touch-patch",
-  "description": "shallow and immutable JSON patch",
+  "description": "shallow copy JSON Patch",
   "version": "0.8.0",
   "author": "Nao Yonamine <mohayonao@gmail.com>",
   "bugs": {

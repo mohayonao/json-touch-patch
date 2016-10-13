@@ -3,184 +3,209 @@
 const clone = require("lodash.clone");
 const esc = { "~0": "~", "~1": "/" };
 
-function patch(target, patches) {
+function patch(object, patches, opts = {}) {
   if (patches.length === 0) {
-    return target;
+    return object;
   }
 
-  const cache = new Map();
+  const strict = !!opts.strict;
+  const cache = {};
 
-  function toKeys(path) {
-    return path.split("/").map(key => key.replace(/~[01]/g, m => esc[m]));
+  function halt(message) {
+    if (strict) {
+      throw new TypeError(message);
+    }
+    return false;
   }
 
-  function toArrayIndex(target, key) {
-    if (key === "-") {
-      return target.length;
+  function fetch(object, key, path) {
+    if (!cache[path]) {
+      cache[path] = { [ key ]: clone(object[key]) };
     }
-    if (/^\d+$/.test(key)) {
-      return +key;
-    }
-    return NaN;
-  }
-
-  function fetch(target, key) {
-    if (!cache.has(target)) {
-      cache.set(target, { [key]: clone(target[key]) });
-    }
-    const map = cache.get(target);
+    const map = cache[path];
 
     if (!map.hasOwnProperty(key)) {
-      map[key] = clone(target[key]);
+      map[key] = clone(object[key]);
     }
 
     return map[key];
   }
 
-  function exists(target, path, lastIndex = Infinity) {
-    const keys = toKeys(path).slice(0, lastIndex);
-
-    let memo = target;
-
-    return keys.every((key) => {
-      if (memo.hasOwnProperty(key)) {
-        return ((memo = memo[key]) || true);
-      }
-    });
+  function toKeys(path) {
+    return path.split("/").map(key => key.replace(/~[01]/g, m => esc[m]));
   }
 
-  function walk(target, keys, at=fetch) {
-    keys.forEach((key) => {
-      target = target[key] = at(target, key);
-    });
-    return target;
+  function toArrayIndex(array, index) {
+    if (index === "-") {
+      return array.length;
+    }
+    if (/^\d+$/.test(index)) {
+      return +index;
+    }
+    return NaN;
   }
 
-  function get(target, path) {
-    const keys = toKeys(path);
-    const lastKey = keys.pop();
-
-    target = walk(target, keys, (target, key) => {
-      if (!target.hasOwnProperty(key)) {
-        throw new TypeError(`[op:get] path not found: ${ path }`);
+  function pluck(object, keys) {
+    return keys.reduce((target, key) => {
+      if (target === null || !target.hasOwnProperty(key)) {
+        return null;
       }
       return target[key];
-    });
-
-    return target[lastKey];
+    }, object);
   }
 
-  function test(target, path, expected) {
-    const actual = get(target, path);
+  function pluckWithClone(object, keys) {
+    return keys.reduce((target, key, i) => {
+      return (target[key] = fetch(target, key, keys.slice(0, i + 1).join("/")));
+    }, object);
+  }
+
+  function get(object, path) {
+    const keys = toKeys(path);
+    const lastKey = keys.pop();
+    const target = pluck(object, keys);
+
+    if (target === null) {
+      return [ `path not found: ${ path }`, null ];
+    }
+
+    return [ null, target[lastKey] ];
+  }
+
+  function test(object, path, expected) {
+    const [ err, actual ] = get(object, path);
+
+    if (err) {
+      return halt(`[op:test] ${ err }`);
+    }
+
     const a = JSON.stringify(actual);
     const b = JSON.stringify(expected);
 
     if (a !== b) {
-      throw new TypeError(`[op:test] not matched: ${ a } ${ b }`);
+      return halt(`[op:test] not matched: ${ a } ${ b }`);
     }
+
+    return true;
   }
 
-  function add(target, path, value) {
+  function add(object, path, value) {
     if (typeof value === "undefined") {
-      throw new TypeError(`[op:add] require value, but got undefined`);
-    }
-    if (!exists(target, path, -1)) {
-      throw new TypeError(`[op:add] path not found: ${ path }`);
+      return halt(`[op:add] require value, but got undefined`);
     }
     const keys = toKeys(path);
     const lastKey = keys.pop();
+    const target = pluck(object, keys);
 
-    target = walk(target, keys);
+    if (target === null) {
+      return halt(`[op:add] path not found: ${ path }`);
+    }
 
     if (Array.isArray(target)) {
       const index = toArrayIndex(target, lastKey);
       if (!(0 <= index && index <= target.length)) {
-        throw new TypeError(`[op:add] invalid array index: ${ path }`);
+        return halt(`[op:add] invalid array index: ${ path }`);
       }
-      target.splice(index, 0, value);
+      pluckWithClone(object, keys).splice(index, 0, value);
     } else {
-      target[lastKey] = value;
+      pluckWithClone(object, keys)[lastKey] = value;
     }
+
+    return true;
   }
 
-  function remove(target, path) {
-    if (!exists(target, path)) {
-      throw new TypeError(`[op:remove] path not found: ${ path }`);
-    }
+  function remove(object, path) {
     const keys = toKeys(path);
     const lastKey = keys.pop();
+    const target = pluck(object, keys);
 
-    target = walk(target, keys);
+    if (target === null) {
+      return halt(`[op:remove] path not found: ${ path }`);
+    }
 
     if (Array.isArray(target)) {
       const index = toArrayIndex(target, lastKey);
       if (!(0 <= index && index < target.length)) {
-        throw new TypeError(`[op:remove] invalid array index: ${ path }`);
+        return halt(`[op:remove] invalid array index: ${ path }`);
       }
-      target.splice(index, 1);
+      pluckWithClone(object, keys).splice(index, 1);
     } else {
-      delete target[lastKey];
+      delete pluckWithClone(object, keys)[lastKey];
     }
+
+    return true;
   }
 
-  function replace(target, path, value) {
+  function replace(object, path, value) {
     if (typeof value === "undefined") {
-      throw new TypeError(`[op:replace] require value, but got undefined`);
-    }
-    if (!exists(target, path)) {
-      throw new TypeError(`[op:replace] path not found: ${ path }`);
+      return halt(`[op:replace] require value, but got undefined`);
     }
     const keys = toKeys(path);
     const lastKey = keys.pop();
+    const target = pluck(object, keys);
 
-    target = walk(target, keys);
+    if (target === null) {
+      return halt(`[op:replace] path not found: ${ path }`);
+    }
 
     if (Array.isArray(target)) {
       const index = toArrayIndex(target, lastKey);
       if (!(0 <= index && index < target.length)) {
-        throw new TypeError(`[op:replace] invalid array index: ${ path }`);
+        return halt(`[op:replace] invalid array index: ${ path }`);
       }
-      target.splice(index, 1, value);
+      if (target[index] === value) {
+        return false;
+      }
+      pluckWithClone(object, keys).splice(index, 1, value);
     } else {
-      target[lastKey] = value;
-    }
-  }
-
-  function move(target, path, value, from) {
-    if (path !== from) {
-      if (!exists(target, from)) {
-        throw new TypeError(`[op:replace] path not found: ${ from }`);
+      if (target[lastKey] === value) {
+        return false;
       }
-      value = get(target, from);
-      remove(target, from);
-      add(target, path, value);
+      pluckWithClone(object, keys)[lastKey] = value;
     }
+
+    return true;
   }
 
-  function copy(target, path, value, from) {
+  function move(object, path, _, from) {
     if (path !== from) {
-      if (!exists(target, from)) {
-        throw new TypeError(`[op:replace] path not found: ${ from }`);
+      const [ err, value ] = get(object, from);
+
+      if (err) {
+        return halt(`[op:move] ${ err }`);
       }
-      value = get(target, from);
-      add(target, path, value);
+
+      return remove(object, from) && add(object, path, value);
     }
+    return true;
   }
 
-  const result = { "": target };
+  function copy(object, path, _, from) {
+    if (path !== from) {
+      const [ err, value ] = get(object, from);
+
+      if (err) {
+        return halt(`[op:copy] ${ err }`);
+      }
+
+      return add(object, path, value);
+    }
+    return true;
+  }
+
+  const root = { "": object };
   const funcs = { test, add, remove, replace, move, copy };
 
   patches.forEach(({ op, path, value, from }) => {
     const func = funcs[op];
-
-    if (typeof func !== "function") {
-      throw new TypeError(`[op:${ op }] unknown`);
+    if (typeof func === "function") {
+      func(root, `${ path }`, value, `${ from }`);
+    } else {
+      return halt(`[op:${ op }] unknown`);
     }
-
-    func(result, path, value, from);
   });
 
-  return result[""];
+  return root[""];
 }
 
 module.exports = patch;
