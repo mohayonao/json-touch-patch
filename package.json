@@ -1,7 +1,7 @@
 {
   "name": "json-touch-patch",
   "description": "shallow copy JSON Patch",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "author": "Nao Yonamine <mohayonao@gmail.com>",
   "bugs": {
     "url": "https://github.com/mohayonao/json-touch-patch/issues"
