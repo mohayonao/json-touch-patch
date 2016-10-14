@@ -95,7 +95,9 @@ function add(object, path, value, pluckWithShallowCopy) {
     }
     pluckWithShallowCopy(object, keys).splice(index, 0, value);
   } else {
-    pluckWithShallowCopy(object, keys)[lastKey] = value;
+    if (!deepEqual(target[lastKey], value, { strict: true })) {
+      pluckWithShallowCopy(object, keys)[lastKey] = value;
+    }
   }
 }
 

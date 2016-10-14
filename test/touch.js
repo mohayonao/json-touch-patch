@@ -55,6 +55,24 @@ describe("touch", () => {
     assert(doc.vector === actual.vector);
   });
 
+  it("add - no changes", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "add", path: "/vector", value: [ 10, 20 ] },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc === actual);
+  });
+
   it("replace", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
