@@ -175,17 +175,15 @@ function move(object, path, from, pluckWithShallowCopy) {
 }
 
 function copy(object, path, from, pluckWithShallowCopy) {
-  if (path !== from) {
-    const keys = toKeys(from);
-    const lastKey = keys.pop();
-    const target = pluck(object, keys);
+  const keys = toKeys(from);
+  const lastKey = keys.pop();
+  const target = pluck(object, keys);
 
-    if (target === null) {
-      return `[op:copy] path not found: ${ from }`;
-    }
-
-    return add(object, path, target[lastKey], pluckWithShallowCopy);
+  if (target === null) {
+    return `[op:copy] path not found: ${ from }`;
   }
+
+  return add(object, path, target[lastKey], pluckWithShallowCopy);
 }
 
 function test(object, path, expected) {
