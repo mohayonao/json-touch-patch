@@ -37,7 +37,7 @@ module.exports = function(setup, done = noop) {
 
 function format(result) {
   result = result.replace(/x \d[\d,]+/, (m) => {
-    return `x ${ " ".repeat(11 - m.length) }${ m.slice(2) }`;
+    return `x ${ " ".repeat(Math.max(0, 12 - m.length)) }${ m.slice(2) }`;
   });
   return result;
 }

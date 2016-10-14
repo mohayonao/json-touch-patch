@@ -21,7 +21,9 @@ function toKeys(path) {
   const keys = path.split("/");
 
   for (let i = 0, imax = keys.length; i < imax; i++) {
-    keys[i] = keys[i].replace(/~[01]/g, esc);
+    if (keys[i].indexOf("~") !== -1) {
+      keys[i] = keys[i].replace(/~[01]/g, esc);
+    }
   }
 
   return keys;
@@ -31,10 +33,13 @@ function toArrayIndex(array, index) {
   if (index === "-") {
     return array.length;
   }
-  if (/^\d+$/.test(index)) {
-    return +index;
+  for (let i = 0, imax = index.length; i < imax; i++) {
+    const ch = index.charCodeAt(i);
+    if (ch < 48 || 57 < ch) {
+      return Infinity;
+    }
   }
-  return NaN;
+  return +index;
 }
 
 function fetch(object, key, path, cache) {
@@ -71,7 +76,7 @@ function pluckWithCachedShallowCopy(object, keys, cache) {
   return object;
 }
 
-function add(object, path, value, patchWithShallowCopy) {
+function add(object, path, value, pluckWithShallowCopy) {
   if (typeof value === "undefined") {
     return `[op:add] require value, but got undefined`;
   }
@@ -85,16 +90,16 @@ function add(object, path, value, patchWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index <= target.length)) {
+    if (target.length < index) {
       return `[op:add] invalid array index: ${ path }`;
     }
-    patchWithShallowCopy(object, keys).splice(index, 0, value);
+    pluckWithShallowCopy(object, keys).splice(index, 0, value);
   } else {
-    patchWithShallowCopy(object, keys)[lastKey] = value;
+    pluckWithShallowCopy(object, keys)[lastKey] = value;
   }
 }
 
-function remove(object, path, patchWithShallowCopy) {
+function remove(object, path, pluckWithShallowCopy) {
   const keys = toKeys(path);
   const lastKey = keys.pop();
   const target = pluck(object, keys);
@@ -105,16 +110,16 @@ function remove(object, path, patchWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index < target.length)) {
+    if (target.length <= index) {
       return `[op:remove] invalid array index: ${ path }`;
     }
-    patchWithShallowCopy(object, keys).splice(index, 1);
+    pluckWithShallowCopy(object, keys).splice(index, 1);
   } else {
-    delete patchWithShallowCopy(object, keys)[lastKey];
+    delete pluckWithShallowCopy(object, keys)[lastKey];
   }
 }
 
-function replace(object, path, value, patchWithShallowCopy) {
+function replace(object, path, value, pluckWithShallowCopy) {
   if (typeof value === "undefined") {
     return `[op:replace] require value, but got undefined`;
   }
@@ -128,20 +133,20 @@ function replace(object, path, value, patchWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index < target.length)) {
+    if (target.length <= index) {
       return `[op:replace] invalid array index: ${ path }`;
     }
     if (!deepEqual(target[index], value, { strict: true })) {
-      patchWithShallowCopy(object, keys).splice(index, 1, value);
+      pluckWithShallowCopy(object, keys).splice(index, 1, value);
     }
   } else {
     if (!deepEqual(target[lastKey], value, { strict: true })) {
-      patchWithShallowCopy(object, keys)[lastKey] = value;
+      pluckWithShallowCopy(object, keys)[lastKey] = value;
     }
   }
 }
 
-function move(object, path, from, patchWithShallowCopy) {
+function move(object, path, from, pluckWithShallowCopy) {
   if (path !== from) {
     const keys = toKeys(from);
     const lastKey = keys.pop();
@@ -155,21 +160,21 @@ function move(object, path, from, patchWithShallowCopy) {
 
     if (Array.isArray(target)) {
       const index = toArrayIndex(target, lastKey);
-      if (!(0 <= index && index < target.length)) {
+      if (target.length <= index) {
         return `[op:move] invalid array index: ${ path }`;
       }
       value = target[index];
-      patchWithShallowCopy(object, keys).splice(index, 1);
+      pluckWithShallowCopy(object, keys).splice(index, 1);
     } else {
       value = target[lastKey];
-      delete patchWithShallowCopy(object, keys)[lastKey];
+      delete pluckWithShallowCopy(object, keys)[lastKey];
     }
 
-    return add(object, path, value, patchWithShallowCopy);
+    return add(object, path, value, pluckWithShallowCopy);
   }
 }
 
-function copy(object, path, from, patchWithShallowCopy) {
+function copy(object, path, from, pluckWithShallowCopy) {
   if (path !== from) {
     const keys = toKeys(from);
     const lastKey = keys.pop();
@@ -179,7 +184,7 @@ function copy(object, path, from, patchWithShallowCopy) {
       return `[op:copy] path not found: ${ from }`;
     }
 
-    return add(object, path, target[lastKey], patchWithShallowCopy);
+    return add(object, path, target[lastKey], pluckWithShallowCopy);
   }
 }
 
