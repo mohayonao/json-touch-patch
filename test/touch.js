@@ -55,6 +55,24 @@ describe("touch", () => {
     assert(doc.vector === actual.vector);
   });
 
+  it("add - no changes", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "add", path: "/vector", value: [ 10, 20 ] },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc === actual);
+  });
+
   it("replace", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
@@ -148,6 +166,30 @@ describe("touch", () => {
     assert(doc.vector === actual.vector);
   });
 
+  it("copy (same path)", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "copy", path: "/matrix/1", from: "/matrix/1" },
+    ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc !== actual);
+    assert(doc.matrix[0] === actual.matrix[0]);
+    assert(doc.matrix[1] === actual.matrix[1]);
+    assert(doc.matrix[1] === actual.matrix[2]);
+    assert(doc.matrix[2] === actual.matrix[3]);
+    assert(doc.vector === actual.vector);
+  });
+
   it("not add (invalid path)", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
@@ -188,24 +230,6 @@ describe("touch", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
       { op: "move", path: "/matrix/1", from: "/matrix/1" },
-    ]);
-    const expected = {
-      matrix: [
-        [ 0, 1, 2 ],
-        [ 3, 4, 5 ],
-        [ 6, 7, 8 ],
-      ],
-      vector: [ 10, 20 ],
-    };
-
-    assert.deepEqual(actual, expected);
-    assert(doc === actual);
-  });
-
-  it("not copy (same path)", () => {
-    const doc = createDoc();
-    const actual = touchPatch(doc, [
-      { op: "copy", path: "/matrix/1", from: "/matrix/1" },
     ]);
     const expected = {
       matrix: [

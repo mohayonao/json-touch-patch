@@ -74,7 +74,7 @@ const patches = [
 ];
 ```
 
-Return a new JSON. It contains shallow-copied elements that have some changes into child elements.
+Return a new JSON. It contains shallow-copied elements that have some changes into child elements. And it contains original elements that are not updated any.
 
 ![remove](assets/patch-remove.png)
 
@@ -102,7 +102,7 @@ assert(prevObject.matrix[1] !== nextObject.matrix[1]);
 assert(prevObject.matrix[2] === nextObject.matrix[2]);
 ```
 
-### not replace
+### replace (no changes)
 
 ```js
 const patches = [
@@ -112,12 +112,49 @@ const patches = [
 
 Return the original JSON. Because all elements are not changed.
 
-![attempt to replace with same value](assets/patch-no-change.png)
+![replace](assets/patch-no-change.png)
 
 `prevObject.matrix[1][1]` is already `4`. So, this patch is need not to update any.
 
 ```js
 assert(prevObject === nextObject);
+```
+
+### move
+
+```js
+const patches = [
+  { op: "move", from: "/matrix/1", path: "/matrix/2" },
+];
+```
+
+Return a new JSON. `[op:move]` works as `[op:get(from)]` -> `[op:remove(from)]` -> `[op:add(path)]`.
+
+![move](assets/patch-move.png)
+
+```js
+assert(prevObject.matrix[0] === nextObject.matrix[0]);
+assert(prevObject.matrix[1] === nextObject.martix[2]);
+assert(prevObject.matrix[2] === nextObject.matrix[1]);
+```
+
+### copy
+
+```js
+const patches = [
+  { op: "copy", from: "/matrix/1", path: "/matrix/1" },
+];
+```
+
+Return a new JSON. `[op:copy]` works as `[op:get(from)]` -> `[op:add(path)]`.
+
+![copy](assets/patch-copy.png)
+
+```js
+assert(prevObject.matrix[0] === nextObject.matrix[0]);
+assert(prevObject.matrix[1] === nextObject.martix[1]);
+assert(prevObject.matrix[1] === nextObject.martix[2]);
+assert(prevObject.matrix[2] === nextObject.matrix[3]);
 ```
 
 ### test failed
@@ -131,7 +168,7 @@ const patch = [
 
 Return the original JSON. Because a test op is failed. All patches are rejected.
 
-![attempt to replace with same value](assets/patch-no-change.png)
+![test](assets/patch-no-change.png)
 
 `prevObject.matrix[1][1]` is not `0` but `4`. So, this test is failed.
 
@@ -149,7 +186,7 @@ const json = [
 
 Return the original JSON. Because all patches are rejected when error occurs.
 
-![attempt to apply an invalid patch](assets/patch-no-change.png)
+![invalid](assets/patch-no-change.png)
 
 `prevObject.matrix[1][100]` is not defined. So, this patch is invalid.
 
