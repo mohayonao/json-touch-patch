@@ -217,36 +217,43 @@ function patch(object, patches, opts) {
     switch (patch.op) {
     case "add":
       if (exit(add(root, `${ patch.path }`, patch.value, pluckFn))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     case "remove":
       if (exit(remove(root, `${ patch.path }`, pluckFn))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     case "replace":
       if (exit(replace(root, `${ patch.path }`, patch.value, pluckFn))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     case "move":
       if (exit(move(root, `${ patch.path }`, `${ patch.from }`, pluckFn))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     case "copy":
       if (exit(copy(root, `${ patch.path }`, `${ patch.from }`, pluckFn))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     case "test":
       if (exit(test(root, `${ patch.path }`, patch.value))) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
       break;
     default:
       if (exit(`[op:${ patch.op }] unknown`)) {
+        opts.error = patch;
         return opts.partial ? root[""] : object;
       }
     }
