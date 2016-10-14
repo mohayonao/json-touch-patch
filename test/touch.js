@@ -220,12 +220,33 @@ describe("touch", () => {
     assert(doc === actual);
   });
 
-  it("partially patch", () => {
+  it("revert patching if error occurs", () => {
     const doc = createDoc();
     const actual = touchPatch(doc, [
-      { op: "add"    , path: "/matrix/2/4", value: 0 },
       { op: "replace", path: "/matrix/1/1", value: 9 },
+      { op: "add"    , path: "/matrix/2/4", value: 0 },
+      { op: "replace", path: "/matrix/1/1", value: 0 },
     ]);
+    const expected = {
+      matrix: [
+        [ 0, 1, 2 ],
+        [ 3, 4, 5 ],
+        [ 6, 7, 8 ],
+      ],
+      vector: [ 10, 20 ],
+    };
+
+    assert.deepEqual(actual, expected);
+    assert(doc === actual);
+  });
+
+  it("{ partial: true } patrial patching", () => {
+    const doc = createDoc();
+    const actual = touchPatch(doc, [
+      { op: "replace", path: "/matrix/1/1", value: 9 },
+      { op: "add"    , path: "/matrix/2/4", value: 0 },
+      { op: "replace", path: "/matrix/1/1", value: 0 },
+    ], { partial: true });
     const expected = {
       matrix: [
         [ 0, 1, 2 ],

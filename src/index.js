@@ -3,7 +3,9 @@
 const shallowCopy = require("shallow-copy");
 const deepEqual = require("deep-equal");
 
-function noop() {}
+function returnAsBool(message) {
+  return !!message;
+}
 
 function throwException(message) {
   if (message) {
@@ -202,8 +204,9 @@ function patch(object, patches, opts) {
   if (patches.length === 0) {
     return object;
   }
+  opts = opts || {};
 
-  const check = (opts && opts.strict) ? throwException : noop;
+  const exit = opts.strict ? throwException : returnAsBool;
   const pluckFn = patches.length === 1 ? pluckWithShallowCopy :
     (cache => (object, keys) => pluckWithCachedShallowCopy(object, keys, cache))({});
   const root = { "": object };
@@ -213,25 +216,39 @@ function patch(object, patches, opts) {
 
     switch (patch.op) {
     case "add":
-      check(add(root, `${ patch.path }`, patch.value, pluckFn));
+      if (exit(add(root, `${ patch.path }`, patch.value, pluckFn))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     case "remove":
-      check(remove(root, `${ patch.path }`, pluckFn));
+      if (exit(remove(root, `${ patch.path }`, pluckFn))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     case "replace":
-      check(replace(root, `${ patch.path }`, patch.value, pluckFn));
+      if (exit(replace(root, `${ patch.path }`, patch.value, pluckFn))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     case "move":
-      check(move(root, `${ patch.path }`, `${ patch.from }`, pluckFn));
+      if (exit(move(root, `${ patch.path }`, `${ patch.from }`, pluckFn))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     case "copy":
-      check(copy(root, `${ patch.path }`, `${ patch.from }`, pluckFn));
+      if (exit(copy(root, `${ patch.path }`, `${ patch.from }`, pluckFn))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     case "test":
-      check(test(root, `${ patch.path }`, patch.value));
+      if (exit(test(root, `${ patch.path }`, patch.value))) {
+        return opts.partial ? root[""] : object;
+      }
       break;
     default:
-      check(`[op:${ patch.op }] unknown`);
+      if (exit(`[op:${ patch.op }] unknown`)) {
+        return opts.partial ? root[""] : object;
+      }
     }
   }
 
