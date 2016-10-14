@@ -7,7 +7,8 @@
     "url": "https://github.com/mohayonao/json-touch-patch/issues"
   },
   "dependencies": {
-    "lodash.clone": "^4.5.0"
+    "deep-equal": "^1.0.1",
+    "shallow-copy": "0.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
