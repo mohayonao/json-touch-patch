@@ -21,7 +21,9 @@ function toKeys(path) {
   const keys = path.split("/");
 
   for (let i = 0, imax = keys.length; i < imax; i++) {
-    keys[i] = keys[i].replace(/~[01]/g, esc);
+    if (keys[i].indexOf("~") !== -1) {
+      keys[i] = keys[i].replace(/~[01]/g, esc);
+    }
   }
 
   return keys;
@@ -31,10 +33,13 @@ function toArrayIndex(array, index) {
   if (index === "-") {
     return array.length;
   }
-  if (/^\d+$/.test(index)) {
-    return +index;
+  for (let i = 0, imax = index.length; i < imax; i++) {
+    const ch = index.charCodeAt(i);
+    if (ch < 48 || 57 < ch) {
+      return Infinity;
+    }
   }
-  return NaN;
+  return +index;
 }
 
 function fetch(object, key, path, cache) {
@@ -85,7 +90,7 @@ function add(object, path, value, pluckWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index <= target.length)) {
+    if (target.length < index) {
       return `[op:add] invalid array index: ${ path }`;
     }
     pluckWithShallowCopy(object, keys).splice(index, 0, value);
@@ -105,7 +110,7 @@ function remove(object, path, pluckWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index < target.length)) {
+    if (target.length <= index) {
       return `[op:remove] invalid array index: ${ path }`;
     }
     pluckWithShallowCopy(object, keys).splice(index, 1);
@@ -128,7 +133,7 @@ function replace(object, path, value, pluckWithShallowCopy) {
 
   if (Array.isArray(target)) {
     const index = toArrayIndex(target, lastKey);
-    if (!(0 <= index && index < target.length)) {
+    if (target.length <= index) {
       return `[op:replace] invalid array index: ${ path }`;
     }
     if (!deepEqual(target[index], value, { strict: true })) {
@@ -155,7 +160,7 @@ function move(object, path, from, pluckWithShallowCopy) {
 
     if (Array.isArray(target)) {
       const index = toArrayIndex(target, lastKey);
-      if (!(0 <= index && index < target.length)) {
+      if (target.length <= index) {
         return `[op:move] invalid array index: ${ path }`;
       }
       value = target[index];
