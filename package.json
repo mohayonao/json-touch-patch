@@ -6,10 +6,6 @@
   "bugs": {
     "url": "https://github.com/mohayonao/json-touch-patch/issues"
   },
-  "dependencies": {
-    "deep-equal": "^1.0.1",
-    "shallow-copy": "0.0.1"
-  },
   "devDependencies": {
     "babel-plugin-istanbul": "^2.0.1",
     "babel-preset-power-assert": "^1.0.0",
