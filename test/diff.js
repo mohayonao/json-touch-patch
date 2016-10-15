@@ -6,7 +6,7 @@ const assert = require("assert");
 const specTests = require("json-patch-test-suite/spec_tests");
 const tests = require("json-patch-test-suite/tests");
 const diff = require("fast-json-patch").compare;
-const touchPatch = require("../src");
+const touchPatch = require("..");
 
 describe("spec tests", () => {
   specTests.filter((test) => {

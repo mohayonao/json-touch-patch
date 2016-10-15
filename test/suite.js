@@ -5,7 +5,7 @@ require("run-with-mocha");
 const assert = require("assert");
 const specTests = require("json-patch-test-suite/spec_tests");
 const tests = require("json-patch-test-suite/tests");
-const touchPatch = require("../src");
+const touchPatch = require("..");
 
 describe("spec tests", () => {
   describe("patch", () => {

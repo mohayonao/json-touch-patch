@@ -5,7 +5,7 @@ const JSONPATCH = require("jsonpatch");
 const JIFF = require("jiff");
 const JSON8_PATCH = require("json8-patch");
 const RFC6902 = require("rfc6902");
-const JSON_TOUCH_PATCH = require("../lib");
+const JSON_TOUCH_PATCH = require("..");
 
 const libs = module.exports = {
   "fast-json-patch": {

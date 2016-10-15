@@ -1,12 +1,9 @@
 {
-  "presets": [
-    "es2015"
-  ],
   "env": {
     "development": {
       "presets": [ "power-assert" ]
     },
-    "cover": {
+    "coverage": {
       "plugins": [ "istanbul" ]
     }
   }
