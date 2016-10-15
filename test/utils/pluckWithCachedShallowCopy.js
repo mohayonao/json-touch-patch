@@ -12,7 +12,7 @@ describe("utils/pluckWithCachedShallowCopy", () => {
     a = {
       foo: {
         bar: {
-          baz: [ 10, [ 20 ] ]
+          baz: [ [ 10 ], [ 20 ] ]
         },
         foobar: [ 30 ]
       },
@@ -28,7 +28,7 @@ describe("utils/pluckWithCachedShallowCopy", () => {
     const a_foo_bar_baz = a.foo.bar.baz;
     const a_foo_bar_baz_1 = a.foo.bar.baz[1];
     const a_qux = a.qux;
-    const actual = pluckWithCachedShallowCopy(a, [ "foo", "bar", "baz", "0" ], cache);
+    const actual = pluckWithCachedShallowCopy(a, [ "foo", "bar", "baz", "0", "*" ], cache);
 
     assert(actual === a.foo.bar.baz[0]);
     assert(a.foo !== a_foo);
@@ -46,7 +46,7 @@ describe("utils/pluckWithCachedShallowCopy", () => {
     const a_foo_bar_baz = a.foo.bar.baz;
     const a_foo_bar_baz_1 = a.foo.bar.baz[1];
     const a_qux = a.qux;
-    const actual = pluckWithCachedShallowCopy(a, [ "foo", "bar", "baz", "1" ], cache);
+    const actual = pluckWithCachedShallowCopy(a, [ "foo", "bar", "baz", "1", "*" ], cache);
 
     assert(actual === a.foo.bar.baz[1]);
     assert(a.foo === a_foo);

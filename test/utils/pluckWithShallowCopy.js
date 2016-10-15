@@ -12,7 +12,7 @@ describe("utils/pluckWithShallowCopy", () => {
     a = {
       foo: {
         bar: {
-          baz: [ 10, [ 20 ] ]
+          baz: [ [ 10 ], [ 20 ] ]
         },
         foobar: [ 30 ]
       },
@@ -27,7 +27,7 @@ describe("utils/pluckWithShallowCopy", () => {
     const a_foo_bar_baz = a.foo.bar.baz;
     const a_foo_bar_baz_1 = a.foo.bar.baz[1];
     const a_qux = a.qux;
-    const actual = pluckWithShallowCopy(a, [ "foo", "bar", "baz", "0" ]);
+    const actual = pluckWithShallowCopy(a, [ "foo", "bar", "baz", "0", "*" ]);
 
     assert(actual === a.foo.bar.baz[0]);
     assert(a.foo !== a_foo);

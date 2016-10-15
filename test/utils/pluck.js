@@ -12,7 +12,7 @@ describe("utils/pluck", () => {
     a = {
       foo: {
         bar: {
-          baz: [ 10, [ 20 ] ]
+          baz: [ [ 10 ], [ 20 ] ]
         },
         foobar: [ 30 ]
       },
@@ -21,8 +21,9 @@ describe("utils/pluck", () => {
   });
 
   it("works", () => {
-    assert(pluck(a, [ "foo", "bar" ]) === a.foo.bar);
-    assert(pluck(a, [ "foo", "bar", "baz", "1" ]) === a.foo.bar.baz[1]);
-    assert(pluck(a, [ "foo", "qux" ]) === null);
+    assert(pluck(a, [ "foo", "*" ]) === a.foo);
+    assert(pluck(a, [ "foo", "bar", "*" ]) === a.foo.bar);
+    assert(pluck(a, [ "foo", "bar", "baz", "*" ]) === a.foo.bar.baz);
+    assert(pluck(a, [ "foo", "qux", "*" ]) === null);
   });
 });
