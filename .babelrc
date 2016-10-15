@@ -6,7 +6,7 @@
     "development": {
       "presets": [ "power-assert" ]
     },
-    "cover": {
+    "coverage": {
       "plugins": [ "istanbul" ]
     }
   }

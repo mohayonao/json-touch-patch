@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.16.0",
+    "babel-plugin-istanbul": "^2.0.1",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-power-assert": "^1.0.0",
     "eslint": "^3.7.1",
@@ -37,9 +38,14 @@
   "license": "MIT",
   "main": "lib/index.js",
   "nyc": {
+    "include": [
+      "src/*.js"
+    ],
     "require": [
       "babel-register"
-    ]
+    ],
+    "sourceMap": false,
+    "instrument": false
   },
   "repository": {
     "type": "git",
