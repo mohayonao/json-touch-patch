@@ -213,7 +213,7 @@ describe("touch", () => {
       assert(doc.vector === actual.vector);
     });
 
-    it("no changes", () => {
+    it("duplicate", () => {
       const doc = createDoc();
       const actual = touchPatch(doc, [
         { op: "copy", path: "/matrix/1", from: "/matrix/1" },
@@ -235,6 +235,26 @@ describe("touch", () => {
       assert(doc.matrix[1] === actual.matrix[2]);
       assert(doc.matrix[2] === actual.matrix[3]);
       assert(doc.vector === actual.vector);
+    });
+  });
+
+  describe("test", () => {
+    it("works", () => {
+      const doc = createDoc();
+      const actual = touchPatch(doc, [
+        { op: "test", path: "/matrix/1", value: [ 3, 4, 5 ] },
+      ]);
+      const expected = {
+        matrix: [
+          [ 0, 1, 2 ],
+          [ 3, 4, 5 ],
+          [ 6, 7, 8 ],
+        ],
+        vector: [ 10, 20 ],
+      };
+
+      assert.deepEqual(actual, expected);
+      assert(doc === actual);
     });
   });
 
