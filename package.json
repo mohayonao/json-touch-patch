@@ -11,9 +11,7 @@
     "shallow-copy": "0.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.16.0",
     "babel-plugin-istanbul": "^2.0.1",
-    "babel-preset-es2015": "^6.16.0",
     "babel-preset-power-assert": "^1.0.0",
     "eslint": "^3.7.1",
     "fast-json-patch": "^1.1.1",
@@ -39,7 +37,7 @@
   "main": "lib/index.js",
   "nyc": {
     "include": [
-      "src/*.js"
+      "lib/*.js"
     ],
     "require": [
       "babel-register"
@@ -52,12 +50,11 @@
     "url": "https://github.com/mohayonao/json-touch-patch.git"
   },
   "scripts": {
-    "build": "babel src -d lib",
-    "clean": "rm -rf lib coverage .nyc_output npm-debug.log",
+    "clean": "rm -rf coverage .nyc_output npm-debug.log",
     "cover": "BABEL_ENV=coverage nyc --reporter text --reporter html npm test",
-    "lint": "eslint src test",
+    "lint": "eslint lib test",
     "postversion": "git push && git push --tags && npm run clean",
-    "prepublish": "npm-run-all clean lint test build",
+    "prepublish": "npm-run-all clean lint test",
     "preversion": "npm-run-all clean lint test",
     "test": "mocha",
     "travis": "npm-run-all lint test"

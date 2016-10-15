@@ -3,7 +3,7 @@
 require("run-with-mocha");
 
 const assert = require("assert");
-const touchPatch = require("../src");
+const touchPatch = require("..");
 
 function createDoc() {
   return {
