@@ -10,6 +10,7 @@
 - The original JSON is not update. The patches apply to a new JSON.
 - The patches create a new object if it includes some changes into child elements.
 - If error occurs, all patches are rejected. Return the original JSON.
+- You can add custom operator using the operator API. → [wiki](https://github.com/mohayonao/json-touch-patch/wiki/Custom-Operator)
 - Maybe, these features are suitable to operate `store` in [React](https://facebook.github.io/react/) and [Redux](http://redux.js.org/) architecture.
 
 ## Installation
@@ -21,6 +22,7 @@ $ npm install --save json-touch-patch
 ## API
 
 - `patch(prevObject: object, patches: object[], [ opts: object ]): object`
+  - `opts.custom: object` custom operator definition.
   - `opts.partial: boolean` not reject patches if error occurs (partial patching)
   - `opts.strict: boolean` throw an exception if error occurs
   - `opts.error: object` point to a cause patch if error occurs
