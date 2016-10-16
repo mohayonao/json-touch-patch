@@ -1,6 +1,6 @@
 {
   "name": "json-touch-patch",
-  "description": "shallow copy JSON Patch",
+  "description": "Immutable JSON Patch implementation based on RFC 6902",
   "version": "0.11.0",
   "author": "Nao Yonamine <mohayonao@gmail.com>",
   "bugs": {
@@ -25,6 +25,7 @@
   ],
   "homepage": "https://github.com/mohayonao/json-touch-patch/",
   "keywords": [
+    "immutable",
     "json",
     "patch",
     "rfc6902"

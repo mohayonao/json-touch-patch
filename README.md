@@ -3,14 +3,14 @@
 [![NPM Version](https://img.shields.io/npm/v/json-touch-patch.svg?style=flat-square)](https://www.npmjs.org/package/json-touch-patch)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](http://mohayonao.mit-license.org/)
 
-> shallow copy JSON Patch [RFC 6902](https://tools.ietf.org/html/rfc6902)
+> Immutable JSON Patch implementation based on [RFC 6902](https://tools.ietf.org/html/rfc6902)
 
 ## Features
 
-- The original JSON is not update. The patches apply to a new JSON.
-- The patches create a new object if it includes some changes into child elements.
-- If error occurs, all patches are rejected. Return the original JSON.
-- You can add custom operator using the operator API. → [wiki](https://github.com/mohayonao/json-touch-patch/wiki/Custom-Operator)
+- **Immutable**: The original JSON is not update. The patches apply to a new JSON.
+- **Touch**: The patches create a new object if it includes some changes into child elements.
+- **Rollback**: If error occurs, all patches are rejected. Return the original JSON.
+- **Customizable**: You can add custom operator using the operator API. → [Wiki](https://github.com/mohayonao/json-touch-patch/wiki/Custom-Operator)
 - Maybe, these features are suitable to operate `store` in [React](https://facebook.github.io/react/) and [Redux](http://redux.js.org/) architecture.
 
 ## Installation
