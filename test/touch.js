@@ -303,4 +303,30 @@ describe("touch", () => {
       assert(doc.vector === actual.vector);
     });
   });
+
+  describe("issue #9", () => {
+    it("fixed", () => {
+      const doc = {
+        test: [
+          { name: "one" }
+        ]
+      }
+      const actual = touchPatch(doc, [
+        { op: "replace", path: "/test/0/name", value: 1 },
+        { op: "add", path: "/test/0", value: { name: "zero" } },
+        { op: "replace", path: "/test/0/name", value: 0 }
+      ]);
+      const expected = {
+        test: [
+          { name: 0 },
+          { name: 1 }
+        ]
+      };
+      assert.deepEqual(actual, expected);
+      assert(doc !== actual);
+      assert(doc.test !== actual.test);
+      assert(doc.test[0] !== actual.test[0]);
+      assert(doc.test[1] !== actual.test[1]);
+    });
+  });
 });
