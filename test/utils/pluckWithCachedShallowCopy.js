@@ -18,7 +18,7 @@ describe("utils/pluckWithCachedShallowCopy", () => {
       },
       qux: "quux"
     };
-    cache = {};
+    cache = new Set();
   });
 
   it("works", () => {
